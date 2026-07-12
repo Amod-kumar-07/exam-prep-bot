@@ -90,4 +90,4 @@ CONTENT = {
                 "📘 *Vector Algebra*\n\n"
                 "Vector: magnitude + direction dono hote hain (jaise force, velocity)\n"
                 "Scalar: sirf magnitude (jaise mass, speed)\n\n"
-                "Dot product: a·b = |a||b|cosθ (result
+                "Dot product: a·b = |a||b|cosθ (result ek scalar hai)\n"
