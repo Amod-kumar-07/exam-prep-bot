@@ -4,7 +4,7 @@ from threading import Thread
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "8904219274:AAGP2PsmDw294sQXREekIpybGXcfi7qnmaE")
+BOT_TOKEN = os.environ["BOT_TOKEN"]
 
 # ---------- KEEP ALIVE (Flask web server for Render free tier) ----------
 flask_app = Flask('')
@@ -475,7 +475,7 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(button_handler))
     print("Bot chalu ho gaya... Ctrl+C se rokna")
-        app.run_polling(drop_pending_updates=True)
+    app.run_polling(drop_pending_updates=True)
 
 if __name__ == "__main__":
     keep_alive()
