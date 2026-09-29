@@ -395,87 +395,302 @@ CONTENT = {
     }
 }
 
+# ---------- MENU STRUCTURE ----------
+
+SUBJ = list(CONTENT.keys())
+MATH = SUBJ.index("NDA Math")
+GAT = SUBJ.index("NDA GAT")
+PHARMA = SUBJ.index("Pharmacy")
+LABEL = {
+    "NDA Math": "Mathematics",
+    "NDA GAT": "General Ability Test (GAT)",
+    "Pharmacy": "Pharmacy (Extra)",
+}
+
+MAIN_MENU_TEXT = (
+    "NDA Preparation Bot\n"
+    "Smart Study | PYQ | Notes | MCQ | Progress\n\n"
+    "Discipline + Right Resources = Success\n\n"
+    "Neeche menu se choose karo:"
+)
+
+EXAM_TEXT = (
+    "NDA Written Exam - Pattern & Syllabus\n\n"
+    "Paper 1: Mathematics\n"
+    "- 120 questions, 300 marks, 2.5 ghante\n"
+    "- Har sahi jawab: 2.5 marks\n\n"
+    "Paper 2: General Ability Test (GAT)\n"
+    "- 150 questions, 600 marks, 2.5 ghante\n"
+    "- Part A English: 50 questions (200 marks)\n"
+    "- Part B General Knowledge: 100 questions (400 marks)\n"
+    "- Har sahi jawab: 4 marks\n\n"
+    "Negative marking: har galat jawab pe 1/3 hissa marks kat te hain.\n\n"
+    "Maths ke topics: Algebra, Trigonometry, Calculus, Matrices, Vectors, "
+    "Coordinate Geometry, Statistics & Probability.\n"
+    "GAT ke topics: English, Physics, Chemistry, General Science, History, "
+    "Geography, Current Affairs.\n\n"
+    "Note: Pattern kabhi kabhi badalta hai. Apply karne se pehle UPSC ka official "
+    "notification (upsc.gov.in) zaroor check karo."
+)
+
+PYQ_TEXT = (
+    "PYQ Section - Jald aa raha hai\n\n"
+    "Asli previous year question papers UPSC ki official website (upsc.gov.in) par "
+    "PDF mein milte hain.\n\n"
+    "Plan: un official PDFs ko year-wise (2025, 2024, 2023...) is bot mein daalna, "
+    "taaki tum yahin se download kar sako.\n\n"
+    "Main apne se banaye sawaalon ko PYQ nahi kahunga, kyunki wo asli exam ke "
+    "sawaal nahi hote. Wo MCQ section mein practice questions ke naam se milenge."
+)
+
+FORMULA_TEXT = (
+    "Formula Sheet (Quick)\n\n"
+    "ALGEBRA\n"
+    "- Quadratic roots: x = (-b +- sqrt(b^2 - 4ac)) / 2a\n"
+    "- Sum of roots = -b/a, Product = c/a\n"
+    "- AP: an = a + (n-1)d, Sn = n/2 * [2a + (n-1)d]\n"
+    "- GP: an = a * r^(n-1), Sn = a(r^n - 1)/(r - 1)\n\n"
+    "TRIGONOMETRY\n"
+    "- sin^2 + cos^2 = 1\n"
+    "- tan = sin/cos\n"
+    "- sin30 = 1/2, sin45 = 1/sqrt2, sin60 = sqrt3/2\n\n"
+    "CALCULUS\n"
+    "- d/dx(x^n) = n x^(n-1)\n"
+    "- Integral of x^n dx = x^(n+1)/(n+1) + C\n\n"
+    "COORDINATE GEOMETRY\n"
+    "- Distance = sqrt[(x2-x1)^2 + (y2-y1)^2]\n"
+    "- Slope m = (y2-y1)/(x2-x1)\n\n"
+    "MATRICES\n"
+    "- 2x2 determinant = ad - bc"
+)
+
+REVISE_TEXT = (
+    "Quick Revision Notes\n\n"
+    "- Discriminant D = b^2 - 4ac: D>0 do real roots, D=0 ek root, D<0 koi real root nahi\n"
+    "- AP mein difference constant, GP mein ratio constant\n"
+    "- i^2 = -1, i^4 = 1\n"
+    "- Dot product ka result scalar, cross product ka result vector\n"
+    "- Mean, Median, Mode teeno alag hain\n"
+    "- Newton 2nd law: F = ma\n"
+    "- Oxidation = electron lose, Reduction = electron gain\n"
+    "- 1857 revolt, 1885 Congress, 1942 Quit India, 1947 Independence"
+)
+
+TIPS_TEXT = (
+    "Study Tips\n\n"
+    "1. Roz Maths ke liye fixed time rakho, kam se kam 2 ghante.\n"
+    "2. Pehle concept samjho, phir formula yaad karo, phir MCQ lagao.\n"
+    "3. Galat hue sawaalon ko alag copy mein likho aur hafte mein ek baar dohrao.\n"
+    "4. Mock test ke waqt timer lagao. Maths mein 120 sawaal 150 minute mein hote hain.\n"
+    "5. Negative marking hai, isliye jis sawaal ka pakka pata na ho use guess mat karo.\n"
+    "6. Roz 30 minute newspaper padho, Current Affairs ke liye."
+)
+
+EXTRA = {"formula": FORMULA_TEXT, "revise": REVISE_TEXT, "tips": TIPS_TEXT}
+
+
+def btn(text, data):
+    return InlineKeyboardButton(text, callback_data=data)
+
+
+def main_menu():
+    return InlineKeyboardMarkup([
+        [btn("NDA (Exam Section)", "nda")],
+        [btn("PYQ", "pyq"), btn("Notes", "notes")],
+        [btn("MCQ", "mcq"), btn("Progress", "prog")],
+        [btn("Settings", "set")],
+        [btn("Pharmacy (Extra)", f"sub|{PHARMA}")],
+    ])
+
+
+def topic_rows(s, mode):
+    rows = []
+    for t, name in enumerate(CONTENT[SUBJ[s]]):
+        if mode == "quiz":
+            data = f"quiz|{s}|{t}|0"
+        elif mode == "note":
+            data = f"note|{s}|{t}"
+        else:
+            data = f"top|{s}|{t}"
+        rows.append([btn(name, data)])
+    return rows
+
+
+def topic_name(s, t):
+    return list(CONTENT[SUBJ[s]].keys())[t]
+
+
+def progress_text(stats):
+    if not stats:
+        return (
+            "Progress\n\nAbhi tak koi quiz attempt nahi kiya.\n"
+            "MCQ section se quiz shuru karo, phir yahan apna score dikhega."
+        )
+    total = sum(v[0] for v in stats.values())
+    right = sum(v[1] for v in stats.values())
+    acc = round(right * 100 / total) if total else 0
+    lines = [
+        "Progress\n",
+        f"Total sawaal attempt: {total}",
+        f"Sahi jawab: {right}",
+        f"Accuracy: {acc}%\n",
+        "Topic wise:",
+    ]
+    weak = []
+    for key, (att, cor) in stats.items():
+        s, t = key.split("|")
+        name = topic_name(int(s), int(t))
+        a = round(cor * 100 / att) if att else 0
+        lines.append(f"- {name}: {cor}/{att} ({a}%)")
+        if att >= 3 and a < 60:
+            weak.append(name)
+    if weak:
+        lines.append("\nWeak topics (dobara practice karo): " + ", ".join(weak))
+    lines.append("\nNote: bot restart hone par ye progress reset ho sakta hai.")
+    return "\n".join(lines)
+
+
 # ---------- HANDLERS ----------
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [[InlineKeyboardButton(sub, callback_data=f"SUB|{sub}")] for sub in CONTENT]
-    await update.message.reply_text(
-        "Namaste! Main tumhara Exam Prep Bot hoon.\nSubject choose karo:",
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
+    await update.message.reply_text(MAIN_MENU_TEXT, reply_markup=main_menu())
+
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     data = query.data.split("|")
+    action = data[0]
 
-    if data[0] == "SUB":
-        subject = data[1]
-        topics = CONTENT[subject]
-        keyboard = [[InlineKeyboardButton(t, callback_data=f"TOPIC|{subject}|{t}")] for t in topics]
-        keyboard.append([InlineKeyboardButton("Back", callback_data="HOME")])
-        await query.edit_message_text(f"{subject} - Topic choose karo:", reply_markup=InlineKeyboardMarkup(keyboard))
+    async def show(text, rows):
+        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(rows))
 
-    elif data[0] == "TOPIC":
-        subject, topic = data[1], data[2]
-        keyboard = [
-            [InlineKeyboardButton("Notes padho", callback_data=f"NOTES|{subject}|{topic}")],
-            [InlineKeyboardButton("Quiz do", callback_data=f"QUIZ|{subject}|{topic}|0")],
-            [InlineKeyboardButton("Back", callback_data=f"SUB|{subject}")]
-        ]
-        await query.edit_message_text(f"{topic}\n\nKya karna hai?", reply_markup=InlineKeyboardMarkup(keyboard))
+    if action == "home":
+        await query.edit_message_text(MAIN_MENU_TEXT, reply_markup=main_menu())
 
-    elif data[0] == "NOTES":
-        subject, topic = data[1], data[2]
-        notes = CONTENT[subject][topic]["notes"]
-        keyboard = [[InlineKeyboardButton("Back", callback_data=f"TOPIC|{subject}|{topic}")]]
+    elif action == "nda":
+        await show("NDA Section - Complete Syllabus & Resources", [
+            [btn("1. Mathematics", f"sub|{MATH}")],
+            [btn("2. General Ability Test (GAT)", f"sub|{GAT}")],
+            [btn("3. Exam Pattern & Syllabus", "exam")],
+            [btn("Back", "home")],
+        ])
+
+    elif action == "exam":
+        await show(EXAM_TEXT, [[btn("Back", "nda")]])
+
+    elif action == "sub":
+        s = int(data[1])
+        back = "home" if s == PHARMA else "nda"
+        await show(f"{LABEL[SUBJ[s]]} - Topic choose karo:", topic_rows(s, "top") + [[btn("Back", back)]])
+
+    elif action == "top":
+        s, t = int(data[1]), int(data[2])
+        await show(f"{topic_name(s, t)}\n\nKya karna hai?", [
+            [btn("Notes padho", f"note|{s}|{t}")],
+            [btn("Quiz do", f"quiz|{s}|{t}|0")],
+            [btn("Back", f"sub|{s}")],
+        ])
+
+    elif action == "notes":
+        await show("Notes Section - Chapter wise study material", [
+            [btn("Mathematics", f"nsub|{MATH}")],
+            [btn("GAT (All Subjects)", f"nsub|{GAT}")],
+            [btn("Pharmacy (Extra)", f"nsub|{PHARMA}")],
+            [btn("Formula Sheet", "extra|formula")],
+            [btn("Quick Revision Notes", "extra|revise")],
+            [btn("Study Tips", "extra|tips")],
+            [btn("Back", "home")],
+        ])
+
+    elif action == "extra":
+        await show(EXTRA[data[1]], [[btn("Back", "notes")]])
+
+    elif action == "nsub":
+        s = int(data[1])
+        await show(f"{LABEL[SUBJ[s]]} Notes - Topic choose karo:", topic_rows(s, "note") + [[btn("Back", "notes")]])
+
+    elif action == "note":
+        s, t = int(data[1]), int(data[2])
+        notes = CONTENT[SUBJ[s]][topic_name(s, t)]["notes"]
+        markup = InlineKeyboardMarkup([[btn("Back", f"top|{s}|{t}")]])
         if len(notes) <= 4000:
-            await query.edit_message_text(notes, reply_markup=InlineKeyboardMarkup(keyboard))
+            await query.edit_message_text(notes, reply_markup=markup)
         else:
-            chunks = [notes[i:i+4000] for i in range(0, len(notes), 4000)]
+            chunks = [notes[i:i + 4000] for i in range(0, len(notes), 4000)]
             await query.edit_message_text(chunks[0])
             for chunk in chunks[1:-1]:
                 await query.message.reply_text(chunk)
-            await query.message.reply_text(chunks[-1], reply_markup=InlineKeyboardMarkup(keyboard))
+            await query.message.reply_text(chunks[-1], reply_markup=markup)
 
-    elif data[0] == "QUIZ":
-        subject, topic, qnum = data[1], data[2], int(data[3])
-        quiz_list = CONTENT[subject][topic]["quiz"]
-        q = quiz_list[qnum]
-        keyboard = [
-            [InlineKeyboardButton(opt, callback_data=f"ANS|{subject}|{topic}|{qnum}|{i}")]
-            for i, opt in enumerate(q["options"])
-        ]
-        progress = f"({qnum+1}/{len(quiz_list)})"
-        await query.edit_message_text(f"Q {progress}: {q['q']}", reply_markup=InlineKeyboardMarkup(keyboard))
+    elif action == "mcq":
+        await show("MCQ Section - Practice Questions", [
+            [btn("Mathematics", f"qsub|{MATH}")],
+            [btn("GAT (All Subjects)", f"qsub|{GAT}")],
+            [btn("Pharmacy (Extra)", f"qsub|{PHARMA}")],
+            [btn("Back", "home")],
+        ])
 
-    elif data[0] == "ANS":
-        subject, topic, qnum, chosen = data[1], data[2], int(data[3]), int(data[4])
-        quiz_list = CONTENT[subject][topic]["quiz"]
-        q = quiz_list[qnum]
-        correct = q["answer"]
+    elif action == "qsub":
+        s = int(data[1])
+        await show(f"{LABEL[SUBJ[s]]} MCQ - Topic choose karo:", topic_rows(s, "quiz") + [[btn("Back", "mcq")]])
+
+    elif action == "quiz":
+        s, t, q = int(data[1]), int(data[2]), int(data[3])
+        quiz_list = CONTENT[SUBJ[s]][topic_name(s, t)]["quiz"]
+        item = quiz_list[q]
+        rows = [[btn(opt, f"ans|{s}|{t}|{q}|{i}")] for i, opt in enumerate(item["options"])]
+        rows.append([btn("Quiz band karo", f"top|{s}|{t}")])
+        await show(f"Q ({q + 1}/{len(quiz_list)}): {item['q']}", rows)
+
+    elif action == "ans":
+        s, t, q, chosen = int(data[1]), int(data[2]), int(data[3]), int(data[4])
+        quiz_list = CONTENT[SUBJ[s]][topic_name(s, t)]["quiz"]
+        item = quiz_list[q]
+        correct = item["answer"]
+        stats = context.user_data.setdefault("stats", {})
+        rec = stats.setdefault(f"{s}|{t}", [0, 0])
+        rec[0] += 1
         if chosen == correct:
+            rec[1] += 1
             result = "Sahi jawab!\n\n"
         else:
-            result = f"Galat. Sahi jawab tha: {q['options'][correct]}\n\n"
+            result = f"Galat. Sahi jawab tha: {item['options'][correct]}\n\n"
+        rows = []
+        if q + 1 < len(quiz_list):
+            rows.append([btn("Next Question", f"quiz|{s}|{t}|{q + 1}")])
+        rows.append([btn("Topic pe wapas", f"top|{s}|{t}")])
+        await show(result, rows)
 
-        next_q = qnum + 1
-        keyboard = []
-        if next_q < len(quiz_list):
-            keyboard.append([InlineKeyboardButton("Next Question", callback_data=f"QUIZ|{subject}|{topic}|{next_q}")])
-        keyboard.append([InlineKeyboardButton("Topic pe wapas", callback_data=f"TOPIC|{subject}|{topic}")])
-        await query.edit_message_text(result, reply_markup=InlineKeyboardMarkup(keyboard))
+    elif action == "pyq":
+        await show(PYQ_TEXT, [[btn("Back", "home")]])
 
-    elif data[0] == "HOME":
-        keyboard = [[InlineKeyboardButton(sub, callback_data=f"SUB|{sub}")] for sub in CONTENT]
-        await query.edit_message_text("Subject choose karo:", reply_markup=InlineKeyboardMarkup(keyboard))
+    elif action == "prog":
+        await show(progress_text(context.user_data.get("stats", {})), [
+            [btn("Progress reset karo", "reset")],
+            [btn("Back", "home")],
+        ])
+
+    elif action == "reset":
+        context.user_data["stats"] = {}
+        await show("Progress reset ho gaya.", [[btn("Back", "home")]])
+
+    elif action == "set":
+        await show(
+            "Settings\n\nProfile, language aur dark/light mode jaise options aage add honge.\n"
+            "Abhi tum apna progress reset kar sakte ho.",
+            [[btn("Progress reset karo", "reset")], [btn("Back", "home")]],
+        )
+
 
 def main():
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("menu", start))
     app.add_handler(CallbackQueryHandler(button_handler))
     print("Bot chalu ho gaya... Ctrl+C se rokna")
     app.run_polling(drop_pending_updates=True)
+
 
 if __name__ == "__main__":
     keep_alive()
